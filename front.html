@@ -1,0 +1,66 @@
+<!--This html page just serves as the front end portion implementing the text boxes on my database page where I can add in information-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title> Database Input Form</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css">
+
+    <script defer src="database.js"></script>
+
+    <title>Sales Input</title>
+</head>
+<body>
+    <h1>Kura Sales Input Form</h1>
+    <form>
+        <!-- Date (varchar) -->
+        <label for="date">Date:</label>
+        <input type="text" id="date" name="date"><br><br>
+
+        <!-- Real Date (varchar) -->
+        <label for="real_date">Real Date:</label>
+        <input type="text" id="real_date" name="real_date"><br><br>
+
+        <!-- Morning Sales (int8) -->
+        <label for="morning_sales">Morning Sales:</label>
+        <input type="number" id="morning_sales" name="morning_sales" min="0"><br><br>
+
+        <!-- Night Sales (int8) -->
+        <label for="night_sales">Night Sales:</label>
+        <input type="number" id="night_sales" name="night_sales" min="0"><br><br>
+
+        <!-- Total Sales (int8) - Readonly -->
+        <label for="total_sales">Total Sales:</label>
+        <input type="number" id="total_sales" name="total_sales" readonly><br><br>
+
+        <!-- Target of Sales (int8) -->
+        <label for="target_sales">Target Sales:</label>
+        <input type="number" id="target_sales" name="target_sales" min="0"><br><br>
+
+        <!-- Hit? (Dropdown) -->
+        <label for="hit">Hit?</label>
+        <select id="hit" name="hit">
+            <option value="true">True</option>
+            <option value="false">False</option>
+        </select><br><br>
+
+        <!-- Submit Button -->
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        // Automatically calculate total sales
+        document.getElementById('morning_sales').addEventListener('input', calculateTotalSales);
+        document.getElementById('night_sales').addEventListener('input', calculateTotalSales);
+
+        function calculateTotalSales() {
+            const morningSales = parseInt(document.getElementById('morning_sales').value) || 0;
+            const nightSales = parseInt(document.getElementById('night_sales').value) || 0;
+            const totalSales = morningSales + nightSales;
+            document.getElementById('total_sales').value = totalSales;
+        }
+    </script>
+</body>
+</html>
