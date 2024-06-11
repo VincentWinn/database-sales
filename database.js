@@ -1,42 +1,61 @@
-/* This database.js files funciton is to set up an express server and handles the information I get from the html page
-and inserts it into the table I created called sales (all the informaiton stored) */ 
-const express = require('express');
-const bodyParser = require('body-parser');
-const { Client } = require('pg');
+document.getElementById('salesForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the default form submission
+    
+    const formData = {
+        date: document.getElementById('date').value,
+        rdate: document.getElementById('real_date').value,
+        msales: parseInt(document.getElementById('morning_sales').value) || 0,
+        nsales: parseInt(document.getElementById('night_sales').value) || 0,
+        tsales: parseInt(document.getElementById('total_sales').value) || 0,
+        target: parseInt(document.getElementById('target_sales').value) || 0,
+        hit: document.getElementById('hit').value
+    };
 
-const app = express();
-const port = 3000;
-
-app.use(bodyParser.json());
-
-const client = new Client({
-    host: '127.0.0.1',
-    database: 'salesdb',
-    user: 'vincent',
-    password: 'nguyen1',
-    port: 5432
-});
-
-client.connect();
-
-app.post('/submit-form-data', (req, res) => {
-    const { date, realDate, morningSales, nightSales, totalSales, targetSales, hit } = req.body;
-
-    // Insert the form data into the database
-    const query = 'INSERT INTO sales (date, real_date, morning_sales, night_sales, total_sales, target_sales, hit) VALUES ($1, $2, $3, $4, $5, $6, $7)';
-    const values = [date, realDate, morningSales, nightSales, totalSales, targetSales, hit];
-
-    client.query(query, values, (err, dbRes) => {
-        if (!err) {
-            console.log('Data inserted successfully');
-            res.sendStatus(200);
+    fetch('http://localhost:3000/submit-form-data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    }).then(response => {
+        if (response.ok) {
+            showModal('Data submitted successfully');
         } else {
-            console.error('Failed to insert data:', err.message);
-            res.sendStatus(500);
+            showModal('Failed to submit data');
         }
+    }).catch(error => {
+        console.error('Error:', error);
+        showModal('An error occurred');
     });
 });
 
-app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
-});
+// Automatically calculate total sales
+document.getElementById('morning_sales').addEventListener('input', calculateTotalSales);
+document.getElementById('night_sales').addEventListener('input', calculateTotalSales);
+
+function calculateTotalSales() {
+    const morningSales = parseInt(document.getElementById('morning_sales').value) || 0;
+    const nightSales = parseInt(document.getElementById('night_sales').value) || 0;
+    const totalSales = morningSales + nightSales;
+    document.getElementById('total_sales').value = totalSales;
+}
+
+// Modal functionality
+const modal = document.getElementById('modal');
+const modalMessage = document.getElementById('modal-message');
+const span = document.getElementsByClassName('close')[0];
+
+function showModal(message) {
+    modalMessage.textContent = message;
+    modal.style.display = 'block';
+}
+
+span.onclick = function() {
+    modal.style.display = 'none';
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
